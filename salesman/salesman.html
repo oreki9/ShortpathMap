@@ -1,0 +1,16 @@
+<script src="salesman.js"></script>
+<script>
+
+var tests = [
+    {q:[[0,0]], r:[0]},
+    {q:[[0,0],[1,1]], r:[0,1]},
+];
+
+
+for(let test of tests) {
+    var points = test.q.map(([x,y])=>new Point(x,y));
+    var res = solve(points);
+    console.log(res);
+}
+
+</script>

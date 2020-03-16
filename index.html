@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Leaflet Routing Machine Example</title>
+    <link rel="stylesheet" href="leaflet/leaflet.css" />
+    <link rel="stylesheet" href="leaflet/leaflet-routing-machine.css" />
+    <style>
+        .map {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="map" class="map"></div>
+    <script src="leaflet/leaflet.js"></script>
+    <script src="leaflet/leaflet-routing-machine.js"></script>
+</body>
+<script>
+var map = L.map('map').setView([-6.9846694,110.4094736], 13);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+L.Routing.control({
+    waypoints: [
+        L.latLng(-6.9846694,110.4094736),
+        L.latLng(-6.9846694,110.5094736)
+    ],
+    routeWhileDragging: true
+}).addTo(map);
+</script>
+</html>

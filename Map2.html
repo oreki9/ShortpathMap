@@ -1,0 +1,99 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Map Shortest path</title>
+  <style>
+	html, body, #viewDiv {
+	  padding: 0;
+	  margin: 0;
+	  height: 100%;
+	  width: 100%;
+	}
+  </style>
+  
+	<link rel="stylesheet" href="https://js.arcgis.com/4.14/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.14/"></script>
+  
+  <script>
+require([
+	"esri/Map",
+	"esri/views/MapView",	  
+	"esri/Graphic",
+	"esri/tasks/RouteTask",
+	"esri/tasks/support/RouteParameters",
+	"esri/tasks/support/FeatureSet"
+], function(Map, MapView, Graphic, RouteTask, RouteParameters, FeatureSet) {
+	var map = new Map({
+		basemap: "streets-navigation-vector"
+	});
+	var view = new MapView({
+		container: "viewDiv",
+		map: map,
+	center: [110.4142924,-6.9858982],
+		zoom: 16
+	});
+	var routeTask = new RouteTask({
+		url: "https://utility.arcgis.com/usrsvcs/appservices/IFWfPpVv5PDdwFVZ/rest/services/World/Route/NAServer/Route_World/solve"
+	});
+	let listPoint = [];
+	view.on("click", function(event){
+		addGraphic(event.mapPoint);
+		if(listPoint.length>=2){
+			view.graphics.removeAll();
+			let shortestPath = Infinity;
+			shortestPath = DrawShortestPath(listPoint,shortestPath);
+		}else{
+			view.graphics.add(listPoint[listPoint.length-1]);
+		}
+	});
+	function MakePossiblePath(_listPath){//bruteforce
+		_listPath.forEach(function(point){
+
+		});
+	}
+	function addGraphic(point) {
+		var graphic = new Graphic({
+			symbol: {
+				type: "simple-marker",
+				color: "white",
+				size: "8px"
+			  },
+			geometry: point
+		});
+		listPoint.push(graphic);
+	}
+	function DrawShortestPath(_listPoint,_shortestPath) {
+		let ShortestPathNow = _shortestPath;
+		_listPoint.forEach(function(point){
+			view.graphics.add(point);
+		});
+		var routeParams = new RouteParameters({
+			stops: new FeatureSet({
+				features: view.graphics.toArray()
+			}),
+			returnDirections: true
+		});
+		routeTask.solve(routeParams).then(function(data) {
+			data.routeResults.forEach(function(result) {
+				result.route.symbol = {
+					type: "simple-line",
+					color: [5, 150, 255],
+					width: 3
+				};
+				let PathFarNow = result.route.attributes.Total_Kilometers;
+				if(PathFarNow<_shortestPath){
+					ShortestPathNow = PathFarNow;
+					view.graphics.add(result.route);
+				}
+			});
+		});
+		return ShortestPathNow;
+	}
+});
+  </script>
+</head>
+<body>
+  <div id="viewDiv"></div>
+</body>
+</html>
